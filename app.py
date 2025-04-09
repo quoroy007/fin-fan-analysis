@@ -68,11 +68,11 @@ if data is not None:
     st.sidebar.info("Adjust safety factors to see how changes affect water and energy metrics")
     
     water_safety_factor = st.sidebar.slider(
-        "Water Volume Safety Factor (%)",
+        "Water Savings Confidence Factor (%)",
         min_value=1,
         max_value=10,
         value=5,
-        help="Increase water volume by this percentage to account for uncertainties"
+        help="Adjust water savings from baseline (30% reduction) to best case (45% reduction)"
     )
     
     energy_safety_factor = st.sidebar.slider(
@@ -88,10 +88,19 @@ if data is not None:
         # Create a copy of the dataframe
         adjusted_df = df.copy()
         
-        # Apply water safety factor
-        water_factor_multiplier = 1 + (water_factor / 100)
-        adjusted_df['WaterNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan'] * water_factor_multiplier
-        adjusted_df['WaterWithFinFan_Adjusted'] = adjusted_df['WaterWithFinFan'] * water_factor_multiplier
+        # For water, keep "No Fin Fan" the same and adjust "With Fin Fan" 
+        # to represent a reduction from 30% (baseline) to 45% (best case)
+        adjusted_df['WaterNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan']  # Keep unchanged
+        
+        # Calculate water reduction percentage based on safety factor (1% -> 30%, 10% -> 45%)
+        base_reduction = 0.30  # 30% baseline reduction
+        max_reduction = 0.45   # 45% maximum reduction
+        
+        # Linear interpolation between 30% and 45% based on safety factor
+        reduction_pct = base_reduction + (max_reduction - base_reduction) * ((water_factor - 1) / 9)
+        
+        # Apply the calculated reduction to get the adjusted "With Fin Fan" value
+        adjusted_df['WaterWithFinFan_Adjusted'] = adjusted_df['WaterNoFinFan'] * (1 - reduction_pct)
         
         # Recalculate water efficiency
         adjusted_df['WaterEffNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan_Adjusted'] / adjusted_df['Production']
