@@ -16,7 +16,6 @@ st.title("Fin Fan Project Analysis Dashboard")
 st.write("Interactive analysis of water and energy impacts with adjustable safety factors")
 
 # Function to load and prepare data
-@st.cache_data
 def load_data():
     try:
         # Try to load from the data directory
