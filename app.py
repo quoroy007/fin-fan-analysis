@@ -22,13 +22,6 @@ def load_data():
         # Load CSV with proper headers
         df = pd.read_csv('data/tons.csv')
         
-        # The column structure is:
-        # Year, Context, Data, Metric Tons of Production, Produced Units
-        # Water Withdrawals m3 (No Fin Fan), Water Eff (m³/ton), Perf Improvement vs Y-1
-        # Water Withdrawals m3 (With Fin Fan), Water Eff (m³/ton)
-        # Energy MWh (No Fin Fan), Energy Eff MWh/Ton, Perf Improvement vs Y-1
-        # Energy MWh (With Fin Fan), Energy Eff MWh/Ton
-        
         # Rename columns with unique names
         new_columns = [
             'Year', 'Context', 'DataType', 'Production', 'ProducedUnits',
@@ -54,13 +47,6 @@ def load_data():
 # **************************************Load data
 data = load_data()
 
-# Display raw data in an expander
-with st.expander("View Raw Data"):
-    if data is not None:
-        st.dataframe(data)
-    else:
-        st.error("Failed to load data. Please check the file path.")
-
 # If data is loaded successfully, continue with the app
 if data is not None:
     # Create safety factor sliders
@@ -80,7 +66,7 @@ if data is not None:
         min_value=1,
         max_value=10,
         value=5,
-        help="Increase energy volume by this percentage to account for uncertainties"
+        help="Adjust energy increase from baseline (0.5%) to worst case (2%)"
     )
     
     # Apply safety factors to data
@@ -106,10 +92,19 @@ if data is not None:
         adjusted_df['WaterEffNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan_Adjusted'] / adjusted_df['Production']
         adjusted_df['WaterEffWithFinFan_Adjusted'] = adjusted_df['WaterWithFinFan_Adjusted'] / adjusted_df['Production']
         
-        # Apply energy safety factor
-        energy_factor_multiplier = 1 + (energy_factor / 100)
-        adjusted_df['EnergyNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan'] * energy_factor_multiplier
-        adjusted_df['EnergyWithFinFan_Adjusted'] = adjusted_df['EnergyWithFinFan'] * energy_factor_multiplier
+        # For energy, keep "No Fin Fan" the same and adjust "With Fin Fan"
+        # to represent an increase from 0.5% (baseline) to 2% (worst case)
+        adjusted_df['EnergyNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan']  # Keep unchanged
+        
+        # Calculate energy increase percentage based on safety factor (1% -> 0.5%, 10% -> 2%)
+        base_increase = 0.005  # 0.5% baseline increase
+        max_increase = 0.02    # 2% maximum increase
+        
+        # Linear interpolation between 0.5% and 2% based on safety factor
+        increase_pct = base_increase + (max_increase - base_increase) * ((energy_factor - 1) / 9)
+        
+        # Apply the calculated increase to get the adjusted "With Fin Fan" value
+        adjusted_df['EnergyWithFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan'] * (1 + increase_pct)
         
         # Recalculate energy efficiency
         adjusted_df['EnergyEffNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan_Adjusted'] / adjusted_df['Production']
@@ -196,6 +191,28 @@ if data is not None:
         fig1.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red")
         fig1.add_annotation(x=2024.5, y=adjusted_data['WaterNoFinFan_Adjusted'].max()*0.95, 
                             text="Forecast Start", showarrow=False, font=dict(color="red"))
+        
+        # Add value labels to each bar
+        for i, year in enumerate(adjusted_data['Year']):
+            # Label for No Fin Fan bars
+            fig1.add_annotation(
+                x=year,
+                y=adjusted_data['WaterNoFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['WaterNoFinFan_Adjusted'].iloc[i]:.0f}",
+                showarrow=False,
+                yshift=10,
+                font=dict(color="white", size=10)
+            )
+            
+            # Label for With Fin Fan bars
+            fig1.add_annotation(
+                x=year,
+                y=adjusted_data['WaterWithFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['WaterWithFinFan_Adjusted'].iloc[i]:.0f}",
+                showarrow=False,
+                yshift=10,
+                font=dict(color="white", size=10)
+            )
         
         # Update layout
         fig1.update_layout(
@@ -297,6 +314,28 @@ if data is not None:
         fig2.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red")
         fig2.add_annotation(x=2024.5, y=adjusted_data['EnergyNoFinFan_Adjusted'].max()*0.95, 
                            text="Forecast Start", showarrow=False, font=dict(color="red"))
+        
+        # Add value labels to each bar
+        for i, year in enumerate(adjusted_data['Year']):
+            # Label for No Fin Fan bars
+            fig2.add_annotation(
+                x=year,
+                y=adjusted_data['EnergyNoFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['EnergyNoFinFan_Adjusted'].iloc[i]:.0f}",
+                showarrow=False,
+                yshift=10,
+                font=dict(color="white", size=10)
+            )
+            
+            # Label for With Fin Fan bars
+            fig2.add_annotation(
+                x=year,
+                y=adjusted_data['EnergyWithFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['EnergyWithFinFan_Adjusted'].iloc[i]:.0f}",
+                showarrow=False,
+                yshift=10,
+                font=dict(color="white", size=10)
+            )
         
         # Update layout
         fig2.update_layout(
