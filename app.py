@@ -187,6 +187,26 @@ if data is not None:
             row=2, col=1
         )
         
+        # Add labels to efficiency lines with staggered positions to avoid overlap
+        for i, year in enumerate(adjusted_data['Year']):
+            # Label for No Fin Fan efficiency (positioned slightly left)
+            fig1.add_annotation(
+                x=year - 0.3,
+                y=adjusted_data['WaterEffNoFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['WaterEffNoFinFan_Adjusted'].iloc[i]:.3f}",
+                showarrow=False,
+                font=dict(color="darkblue", size=10)
+            )
+            
+            # Label for With Fin Fan efficiency (positioned slightly right)
+            fig1.add_annotation(
+                x=year + 0.3,
+                y=adjusted_data['WaterEffWithFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['WaterEffWithFinFan_Adjusted'].iloc[i]:.3f}",
+                showarrow=False,
+                font=dict(color="darkgreen", size=10)
+            )
+        
         # Add vertical line at 2024 (start of forecast)
         fig1.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red")
         fig1.add_annotation(x=2024.5, y=adjusted_data['WaterNoFinFan_Adjusted'].max()*0.95, 
@@ -309,6 +329,26 @@ if data is not None:
             ),
             row=2, col=1
         )
+        
+        # Add labels to efficiency lines with staggered positions to avoid overlap
+        for i, year in enumerate(adjusted_data['Year']):
+            # Label for No Fin Fan efficiency (positioned slightly left)
+            fig2.add_annotation(
+                x=year - 0.3,
+                y=adjusted_data['EnergyEffNoFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['EnergyEffNoFinFan_Adjusted'].iloc[i]:.3f}",
+                showarrow=False,
+                font=dict(color="darkviolet", size=10)
+            )
+            
+            # Label for With Fin Fan efficiency (positioned slightly right)
+            fig2.add_annotation(
+                x=year + 0.3,
+                y=adjusted_data['EnergyEffWithFinFan_Adjusted'].iloc[i],
+                text=f"{adjusted_data['EnergyEffWithFinFan_Adjusted'].iloc[i]:.3f}",
+                showarrow=False,
+                font=dict(color="darkorange", size=10)
+            )
         
         # Add vertical line at 2024 (start of forecast)
         fig2.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red")
