@@ -19,48 +19,49 @@ st.write("Interactive analysis of water and energy impacts with adjustable safet
 @st.cache_data
 def load_data():
     try:
-        # Try to load from the data directory
+        # Load the CSV file
         df = pd.read_csv('data/tons.csv')
         
-        # Print column names for debugging
-        st.write("Original columns:", df.columns.tolist())
+        # Define the mapping based on actual column names
+        columns = {
+            'Unnamed: 0': 'Year',
+            'Unnamed: 1': 'Context',
+            'Unnamed: 2': 'DataType',
+            'Unnamed: 3': 'Production',
+            'Unnamed: 4': 'ProducedUnits',
+            'No Fin Fan': 'WaterNoFinFan',
+            'Unnamed: 6': 'WaterEffNoFinFan',
+            'Unnamed: 7': 'WaterPerfImprovement',
+            'With Fin Fan': 'WaterWithFinFan',
+            'Unnamed: 9': 'WaterEffWithFinFan',
+            'No Fin Fan.1': 'EnergyNoFinFan',
+            'Unnamed: 11': 'EnergyEffNoFinFan',
+            'Unnamed: 12': 'EnergyPerfImprovement',
+            'With Fin Fan.1': 'EnergyWithFinFan',
+            'Unnamed: 14': 'EnergyEffWithFinFan'
+        }
         
-        # First check if we have an unnamed first column which is likely the year
-        if df.columns[0].startswith('Unnamed') or df.columns[0] == '':
-            # Rename first column to Year
-            new_cols = df.columns.tolist()
-            new_cols[0] = 'Year'
-            df.columns = new_cols
+        # Rename columns
+        df = df.rename(columns=columns)
         
-        # Check data type and clean numeric columns
-        if len(df) > 0:
-            # Convert Year to numeric if it exists
-            if 'Year' in df.columns:
-                df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
-            
-            # Try to identify other columns based on content
-            for col in df.columns:
-                if "Water Withdrawals" in str(df[col].iloc[0]):
-                    df.rename(columns={col: 'WaterNoFinFan'}, inplace=True)
-                if "Water Eff" in str(df[col].iloc[0]):
-                    df.rename(columns={col: 'WaterEffNoFinFan'}, inplace=True)
-                if "Energy MWh" in str(df[col].iloc[0]):
-                    df.rename(columns={col: 'EnergyNoFinFan'}, inplace=True)
-                if "Energy Eff" in str(df[col].iloc[0]):
-                    df.rename(columns={col: 'EnergyEffNoFinFan'}, inplace=True)
-            
-            # Remove header rows if they exist in the data
-            if isinstance(df['Year'].iloc[0], str) and not df['Year'].iloc[0].isdigit():
-                df = df.iloc[1:].reset_index(drop=True)
-            
-            # Convert all potential numeric columns to numeric
-            for col in df.columns:
+        # Convert Year to numeric
+        df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+        
+        # Drop header row if it exists
+        df = df[df['Year'].notna() & (~df['Year'].astype(str).str.contains('Year', case=False))]
+        
+        # Convert numeric columns
+        numeric_columns = ['Year', 'Production', 'WaterNoFinFan', 'WaterEffNoFinFan', 'WaterPerfImprovement',
+                          'WaterWithFinFan', 'WaterEffWithFinFan', 'EnergyNoFinFan', 'EnergyEffNoFinFan',
+                          'EnergyPerfImprovement', 'EnergyWithFinFan', 'EnergyEffWithFinFan']
+        
+        for col in numeric_columns:
+            if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
-                
+        
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        st.write("CSV columns:", pd.read_csv('data/tons.csv').columns.tolist())
         return None
 
 # Load data
