@@ -1,3 +1,196 @@
+with tab3:
+        st.subheader("Combined Water and Energy Analysis")
+        
+        # Create combined visualization
+        fig3 = make_subplots(
+            rows=2, 
+            cols=2,
+            subplot_titles=(
+                "Water Withdrawals (m³)", 
+                "Energy Consumption (MWh)",
+                "Water Efficiency (m³/ton)", 
+                "Energy Efficiency (MWh/ton)"
+            ),
+            vertical_spacing=0.12,
+            horizontal_spacing=0.08
+        )
+        
+        # Add water withdrawals (top left)
+        fig3.add_trace(
+            go.Bar(
+                x=adjusted_data['Year'],
+                y=adjusted_data['WaterNoFinFan_Adjusted'],
+                name="Water - No Fin Fan",
+                marker_color='royalblue',
+                hovertemplate='Year: %{x}<br>Water: %{y:.0f} m³<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True,
+                width=0.3
+            ),
+            row=1, col=1
+        )
+        
+        fig3.add_trace(
+            go.Bar(
+                x=adjusted_data['Year'],
+                y=adjusted_data['WaterWithFinFan_Adjusted'],
+                name="Water - With Fin Fan",
+                marker_color='lightgreen',
+                hovertemplate='Year: %{x}<br>Water: %{y:.0f} m³<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True,
+                width=0.3
+            ),
+            row=1, col=1
+        )
+        
+        # Add energy consumption (top right)
+        fig3.add_trace(
+            go.Bar(
+                x=adjusted_data['Year'],
+                y=adjusted_data['EnergyNoFinFan_Adjusted'],
+                name="Energy - No Fin Fan",
+                marker_color='purple',
+                hovertemplate='Year: %{x}<br>Energy: %{y:.0f} MWh<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True,
+                width=0.3
+            ),
+            row=1, col=2
+        )
+        
+        fig3.add_trace(
+            go.Bar(
+                x=adjusted_data['Year'],
+                y=adjusted_data['EnergyWithFinFan_Adjusted'],
+                name="Energy - With Fin Fan",
+                marker_color='orange',
+                hovertemplate='Year: %{x}<br>Energy: %{y:.0f} MWh<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True,
+                width=0.3
+            ),
+            row=1, col=2
+        )
+        
+        # Add water efficiency (bottom left)
+        fig3.add_trace(
+            go.Scatter(
+                x=adjusted_data['Year'],
+                y=adjusted_data['WaterEffNoFinFan_Adjusted'],
+                name="Water Eff - No Fin Fan",
+                mode='lines+markers',
+                line=dict(color='darkblue', width=2),
+                marker=dict(size=6),
+                hovertemplate='Year: %{x}<br>Efficiency: %{y:.3f} m³/ton<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True
+            ),
+            row=2, col=1
+        )
+        
+        fig3.add_trace(
+            go.Scatter(
+                x=adjusted_data['Year'],
+                y=adjusted_data['WaterEffWithFinFan_Adjusted'],
+                name="Water Eff - With Fin Fan",
+                mode='lines+markers',
+                line=dict(color='darkgreen', width=2),
+                marker=dict(size=6),
+                hovertemplate='Year: %{x}<br>Efficiency: %{y:.3f} m³/ton<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True
+            ),
+            row=2, col=1
+        )
+        
+        # Add energy efficiency (bottom right)
+        fig3.add_trace(
+            go.Scatter(
+                x=adjusted_data['Year'],
+                y=adjusted_data['EnergyEffNoFinFan_Adjusted'],
+                name="Energy Eff - No Fin Fan",
+                mode='lines+markers',
+                line=dict(color='darkviolet', width=2),
+                marker=dict(size=6),
+                hovertemplate='Year: %{x}<br>Efficiency: %{y:.3f} MWh/ton<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True
+            ),
+            row=2, col=2
+        )
+        
+        fig3.add_trace(
+            go.Scatter(
+                x=adjusted_data['Year'],
+                y=adjusted_data['EnergyEffWithFinFan_Adjusted'],
+                name="Energy Eff - With Fin Fan",
+                mode='lines+markers',
+                line=dict(color='darkorange', width=2),
+                marker=dict(size=6),
+                hovertemplate='Year: %{x}<br>Efficiency: %{y:.3f} MWh/ton<br>Type: %{text}<extra></extra>',
+                text=adjusted_data['DataType'],
+                showlegend=True
+            ),
+            row=2, col=2
+        )
+        
+        # Add vertical line at 2024 (start of forecast) to all subplots
+        fig3.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red", row=1, col=1)
+        fig3.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red", row=1, col=2)
+        fig3.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red", row=2, col=1)
+        fig3.add_vline(x=2024.5, line_width=2, line_dash="dash", line_color="red", row=2, col=2)
+        
+        # Update layout
+        fig3.update_layout(
+            height=800,
+            barmode='group',
+            hovermode="closest",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        
+        # Update y-axes titles
+        fig3.update_yaxes(title_text="Water (m³)", row=1, col=1)
+        fig3.update_yaxes(title_text="Energy (MWh)", row=1, col=2)
+        fig3.update_yaxes(title_text="Water Efficiency (m³/ton)", row=2, col=1)
+        fig3.update_yaxes(title_text="Energy Efficiency (MWh/ton)", row=2, col=2)
+        
+        st.plotly_chart(fig3, use_container_width=True)
+        
+        # Summary metrics for combined view
+        forecast_data = adjusted_data[adjusted_data['DataType'] == 'Forecast']
+        if not forecast_data.empty:
+            water_savings_pct = ((forecast_data['WaterNoFinFan_Adjusted'] - forecast_data['WaterWithFinFan_Adjusted']) / 
+                                forecast_data['WaterNoFinFan_Adjusted']).mean() * 100
+            
+            energy_increase_pct = ((forecast_data['EnergyWithFinFan_Adjusted'] - forecast_data['EnergyNoFinFan_Adjusted']) / 
+                                  forecast_data['EnergyNoFinFan_Adjusted']).mean() * 100
+            
+            trade_off_ratio = water_savings_pct / energy_increase_pct if energy_increase_pct > 0 else 0
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Water Savings", f"{water_savings_pct:.1f}%")
+            with col2:
+                st.metric("Energy Increase", f"{energy_increase_pct:.2f}%")
+            with col3:
+                st.metric("Water-Energy Trade-off Ratio", f"{trade_off_ratio:.1f}:1")
+                st.caption("Water savings % : Energy increase %")
+        
+        # Add text explanation
+        st.write("""
+        ### Water-Energy Trade-off Analysis
+        
+        This combined view helps understand the relationship between water conservation and energy consumption 
+        with the Fin Fan project. The trade-off ratio shows how much water is saved per unit of additional 
+        energy consumed, with higher values indicating a more favorable trade-off.
+        """)
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -126,7 +319,7 @@ if data is not None:
     st.header("Visualizations")
     
     # Water and Energy tab selector
-    tab1, tab2 = st.tabs(["Water Analysis", "Energy Analysis"])
+    tab1, tab2, tab3 = st.tabs(["Water Analysis", "Energy Analysis", "Combined Analysis"])
     
     with tab1:
         st.subheader("Water Withdrawals and Efficiency")
@@ -231,22 +424,24 @@ if data is not None:
         for i, year in enumerate(adjusted_data['Year']):
             # Label for No Fin Fan bars
             fig1.add_annotation(
-                x=year,
+                x=year - 0.2,  # Moved more to the left
                 y=adjusted_data['WaterNoFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['WaterNoFinFan_Adjusted'].iloc[i]:.0f}",
                 showarrow=False,
                 yshift=10,
-                font=dict(color="white", size=10)
+                font=dict(color="white", size=9),  # Smaller font
+                xanchor="center"  # Center alignment
             )
             
             # Label for With Fin Fan bars
             fig1.add_annotation(
-                x=year,
+                x=year + 0.2,  # Moved more to the right
                 y=adjusted_data['WaterWithFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['WaterWithFinFan_Adjusted'].iloc[i]:.0f}",
                 showarrow=False,
                 yshift=10,
-                font=dict(color="white", size=10)
+                font=dict(color="white", size=9),  # Smaller font
+                xanchor="center"  # Center alignment
             )
         
         # Update layout
@@ -382,22 +577,24 @@ if data is not None:
         for i, year in enumerate(adjusted_data['Year']):
             # Label for No Fin Fan bars
             fig2.add_annotation(
-                x=year,
+                x=year - 0.2,  # Moved more to the left
                 y=adjusted_data['EnergyNoFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['EnergyNoFinFan_Adjusted'].iloc[i]:.0f}",
                 showarrow=False,
                 yshift=10,
-                font=dict(color="white", size=10)
+                font=dict(color="white", size=9),  # Smaller font
+                xanchor="center"  # Center alignment
             )
             
             # Label for With Fin Fan bars
             fig2.add_annotation(
-                x=year,
+                x=year + 0.2,  # Moved more to the right
                 y=adjusted_data['EnergyWithFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['EnergyWithFinFan_Adjusted'].iloc[i]:.0f}",
                 showarrow=False,
                 yshift=10,
-                font=dict(color="white", size=10)
+                font=dict(color="white", size=9),  # Smaller font
+                xanchor="center"  # Center alignment
             )
         
         # Update layout
