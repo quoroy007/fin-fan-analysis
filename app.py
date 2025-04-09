@@ -195,7 +195,11 @@ if data is not None:
                 y=adjusted_data['WaterEffNoFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['WaterEffNoFinFan_Adjusted'].iloc[i]:.3f}",
                 showarrow=False,
-                font=dict(color="darkblue", size=10)
+                font=dict(color="darkblue", size=10),
+                bgcolor="rgba(255, 255, 255, 0.7)",  # Semi-transparent white background
+                bordercolor="darkblue",
+                borderwidth=1,
+                borderpad=3
             )
             
             # Label for With Fin Fan efficiency (positioned slightly right)
@@ -204,7 +208,11 @@ if data is not None:
                 y=adjusted_data['WaterEffWithFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['WaterEffWithFinFan_Adjusted'].iloc[i]:.3f}",
                 showarrow=False,
-                font=dict(color="darkgreen", size=10)
+                font=dict(color="darkgreen", size=10),
+                bgcolor="rgba(255, 255, 255, 0.7)",  # Semi-transparent white background
+                bordercolor="darkgreen",
+                borderwidth=1,
+                borderpad=3
             )
         
         # Add vertical line at 2024 (start of forecast)
@@ -338,7 +346,11 @@ if data is not None:
                 y=adjusted_data['EnergyEffNoFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['EnergyEffNoFinFan_Adjusted'].iloc[i]:.3f}",
                 showarrow=False,
-                font=dict(color="darkviolet", size=10)
+                font=dict(color="darkviolet", size=10),
+                bgcolor="rgba(255, 255, 255, 0.7)",  # Semi-transparent white background
+                bordercolor="darkviolet",
+                borderwidth=1,
+                borderpad=3
             )
             
             # Label for With Fin Fan efficiency (positioned slightly right)
@@ -347,7 +359,11 @@ if data is not None:
                 y=adjusted_data['EnergyEffWithFinFan_Adjusted'].iloc[i],
                 text=f"{adjusted_data['EnergyEffWithFinFan_Adjusted'].iloc[i]:.3f}",
                 showarrow=False,
-                font=dict(color="darkorange", size=10)
+                font=dict(color="darkorange", size=10),
+                bgcolor="rgba(255, 255, 255, 0.7)",  # Semi-transparent white background
+                bordercolor="darkorange",
+                borderwidth=1,
+                borderpad=3
             )
         
         # Add vertical line at 2024 (start of forecast)
