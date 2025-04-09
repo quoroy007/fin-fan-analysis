@@ -434,33 +434,7 @@ if data is not None:
             with col3:
                 st.metric("2030 Energy Difference", f"{energy_diff.iloc[-1]:.0f} MWh")
     
-    # Key insights
-    st.header("Key Insights")
-    
-    # Get average savings from forecast data
-    forecast_data = adjusted_data[adjusted_data['DataType'] == 'Forecast']
-    if not forecast_data.empty:
-        avg_water_savings_pct = ((forecast_data['WaterNoFinFan_Adjusted'] - forecast_data['WaterWithFinFan_Adjusted']) / 
-                                 forecast_data['WaterNoFinFan_Adjusted']).mean() * 100
-        
-        avg_energy_change_pct = ((forecast_data['EnergyWithFinFan_Adjusted'] - forecast_data['EnergyNoFinFan_Adjusted']) / 
-                                forecast_data['EnergyNoFinFan_Adjusted']).mean() * 100
-        
-        # Create three columns for metrics
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.info(f"**Water Savings**: Average **{avg_water_savings_pct:.1f}%** reduction in water withdrawals with Fin Fan project")
-        
-        with col2:
-            st.info(f"**Energy Impact**: Average **{avg_energy_change_pct:.2f}%** increase in energy consumption with Fin Fan project")
-        
-        with col3:
-            st.info("**Trade-off**: Minimal energy penalty for substantial water conservation benefits")
-else:
-    st.error("Please upload the data file to continue.")
-
-  with tab3:
+    with tab3:
         st.subheader("Combined Water and Energy Analysis")
         
         # Create combined visualization
@@ -648,3 +622,34 @@ else:
         # Add text explanation
         st.write("""
         ### Water-Energy Trade-off Analysis
+        
+        This combined view helps understand the relationship between water conservation and energy consumption 
+        with the Fin Fan project. The trade-off ratio shows how much water is saved per unit of additional 
+        energy consumed, with higher values indicating a more favorable trade-off.
+        """)
+    
+    # Key insights
+    st.header("Key Insights")
+    
+    # Get average savings from forecast data
+    forecast_data = adjusted_data[adjusted_data['DataType'] == 'Forecast']
+    if not forecast_data.empty:
+        avg_water_savings_pct = ((forecast_data['WaterNoFinFan_Adjusted'] - forecast_data['WaterWithFinFan_Adjusted']) / 
+                                 forecast_data['WaterNoFinFan_Adjusted']).mean() * 100
+        
+        avg_energy_change_pct = ((forecast_data['EnergyWithFinFan_Adjusted'] - forecast_data['EnergyNoFinFan_Adjusted']) / 
+                                forecast_data['EnergyNoFinFan_Adjusted']).mean() * 100
+        
+        # Create three columns for metrics
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.info(f"**Water Savings**: Average **{avg_water_savings_pct:.1f}%** reduction in water withdrawals with Fin Fan project")
+        
+        with col2:
+            st.info(f"**Energy Impact**: Average **{avg_energy_change_pct:.2f}%** increase in energy consumption with Fin Fan project")
+        
+        with col3:
+            st.info("**Trade-off**: Minimal energy penalty for substantial water conservation benefits")
+else:
+    st.error("Please upload the data file to continue.")
