@@ -15,56 +15,43 @@ st.set_page_config(
 st.title("Fin Fan Project Analysis Dashboard")
 st.write("Interactive analysis of water and energy impacts with adjustable safety factors")
 
-# Function to load and prepare data
+# ************************************Function to load and prepare data
 @st.cache_data
 def load_data():
     try:
-        # Load the CSV file
+        # Load CSV with proper headers
         df = pd.read_csv('data/tons.csv')
         
-        # Define the mapping based on actual column names
-        columns = {
-            'Unnamed: 0': 'Year',
-            'Unnamed: 1': 'Context',
-            'Unnamed: 2': 'DataType',
-            'Unnamed: 3': 'Production',
-            'Unnamed: 4': 'ProducedUnits',
-            'No Fin Fan': 'WaterNoFinFan',
-            'Unnamed: 6': 'WaterEffNoFinFan',
-            'Unnamed: 7': 'WaterPerfImprovement',
-            'With Fin Fan': 'WaterWithFinFan',
-            'Unnamed: 9': 'WaterEffWithFinFan',
-            'No Fin Fan.1': 'EnergyNoFinFan',
-            'Unnamed: 11': 'EnergyEffNoFinFan',
-            'Unnamed: 12': 'EnergyPerfImprovement',
-            'With Fin Fan.1': 'EnergyWithFinFan',
-            'Unnamed: 14': 'EnergyEffWithFinFan'
-        }
+        # The column structure is:
+        # Year, Context, Data, Metric Tons of Production, Produced Units
+        # Water Withdrawals m3 (No Fin Fan), Water Eff (m³/ton), Perf Improvement vs Y-1
+        # Water Withdrawals m3 (With Fin Fan), Water Eff (m³/ton)
+        # Energy MWh (No Fin Fan), Energy Eff MWh/Ton, Perf Improvement vs Y-1
+        # Energy MWh (With Fin Fan), Energy Eff MWh/Ton
         
-        # Rename columns
-        df = df.rename(columns=columns)
+        # Rename columns with unique names
+        new_columns = [
+            'Year', 'Context', 'DataType', 'Production', 'ProducedUnits',
+            'WaterNoFinFan', 'WaterEffNoFinFan', 'WaterPerfImprovement',
+            'WaterWithFinFan', 'WaterEffWithFinFan',
+            'EnergyNoFinFan', 'EnergyEffNoFinFan', 'EnergyPerfImprovement',
+            'EnergyWithFinFan', 'EnergyEffWithFinFan'
+        ]
         
-        # Convert Year to numeric
-        df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+        df.columns = new_columns
         
-        # Drop header row if it exists
-        df = df[df['Year'].notna() & (~df['Year'].astype(str).str.contains('Year', case=False))]
-        
-        # Convert numeric columns
-        numeric_columns = ['Year', 'Production', 'WaterNoFinFan', 'WaterEffNoFinFan', 'WaterPerfImprovement',
-                          'WaterWithFinFan', 'WaterEffWithFinFan', 'EnergyNoFinFan', 'EnergyEffNoFinFan',
-                          'EnergyPerfImprovement', 'EnergyWithFinFan', 'EnergyEffWithFinFan']
-        
-        for col in numeric_columns:
-            if col in df.columns:
+        # Convert columns to numeric
+        for col in df.columns:
+            if col != 'Context' and col != 'DataType':
                 df[col] = pd.to_numeric(df[col], errors='coerce')
-        
+                
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
+        st.write("Please check your CSV file structure")
         return None
 
-# Load data
+# **************************************Load data
 data = load_data()
 
 # Display raw data in an expander
