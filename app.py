@@ -74,9 +74,17 @@ if data is not None:
         # Create a copy of the dataframe
         adjusted_df = df.copy()
         
-        # For water, keep "No Fin Fan" the same and adjust "With Fin Fan" 
+        # Initialize adjusted columns with original values
+        adjusted_df['WaterNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan']
+        adjusted_df['WaterWithFinFan_Adjusted'] = adjusted_df['WaterWithFinFan'] 
+        adjusted_df['EnergyNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan']
+        adjusted_df['EnergyWithFinFan_Adjusted'] = adjusted_df['EnergyWithFinFan']
+        
+        # Only apply safety factors to forecast data (Year >= 2025)
+        forecast_mask = (adjusted_df['Year'] >= 2025) | (adjusted_df['DataType'] == 'Forecast')
+        
+        # For water in forecast years, keep "No Fin Fan" the same and adjust "With Fin Fan" 
         # to represent a reduction from 30% (baseline) to 45% (best case)
-        adjusted_df['WaterNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan']  # Keep unchanged
         
         # Calculate water reduction percentage based on safety factor (1% -> 30%, 10% -> 45%)
         base_reduction = 0.30  # 30% baseline reduction
@@ -85,16 +93,11 @@ if data is not None:
         # Linear interpolation between 30% and 45% based on safety factor
         reduction_pct = base_reduction + (max_reduction - base_reduction) * ((water_factor - 1) / 9)
         
-        # Apply the calculated reduction to get the adjusted "With Fin Fan" value
-        adjusted_df['WaterWithFinFan_Adjusted'] = adjusted_df['WaterNoFinFan'] * (1 - reduction_pct)
+        # Apply the calculated reduction to get the adjusted "With Fin Fan" value (only for forecast data)
+        adjusted_df.loc[forecast_mask, 'WaterWithFinFan_Adjusted'] = adjusted_df.loc[forecast_mask, 'WaterNoFinFan'] * (1 - reduction_pct)
         
-        # Recalculate water efficiency
-        adjusted_df['WaterEffNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan_Adjusted'] / adjusted_df['Production']
-        adjusted_df['WaterEffWithFinFan_Adjusted'] = adjusted_df['WaterWithFinFan_Adjusted'] / adjusted_df['Production']
-        
-        # For energy, keep "No Fin Fan" the same and adjust "With Fin Fan"
+        # For energy in forecast years, keep "No Fin Fan" the same and adjust "With Fin Fan"
         # to represent an increase from 0.5% (baseline) to 2% (worst case)
-        adjusted_df['EnergyNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan']  # Keep unchanged
         
         # Calculate energy increase percentage based on safety factor (1% -> 0.5%, 10% -> 2%)
         base_increase = 0.005  # 0.5% baseline increase
@@ -103,10 +106,14 @@ if data is not None:
         # Linear interpolation between 0.5% and 2% based on safety factor
         increase_pct = base_increase + (max_increase - base_increase) * ((energy_factor - 1) / 9)
         
-        # Apply the calculated increase to get the adjusted "With Fin Fan" value
-        adjusted_df['EnergyWithFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan'] * (1 + increase_pct)
+        # Apply the calculated increase to get the adjusted "With Fin Fan" value (only for forecast data)
+        adjusted_df.loc[forecast_mask, 'EnergyWithFinFan_Adjusted'] = adjusted_df.loc[forecast_mask, 'EnergyNoFinFan'] * (1 + increase_pct)
         
-        # Recalculate energy efficiency
+        # Recalculate water efficiency for all rows
+        adjusted_df['WaterEffNoFinFan_Adjusted'] = adjusted_df['WaterNoFinFan_Adjusted'] / adjusted_df['Production']
+        adjusted_df['WaterEffWithFinFan_Adjusted'] = adjusted_df['WaterWithFinFan_Adjusted'] / adjusted_df['Production']
+        
+        # Recalculate energy efficiency for all rows
         adjusted_df['EnergyEffNoFinFan_Adjusted'] = adjusted_df['EnergyNoFinFan_Adjusted'] / adjusted_df['Production']
         adjusted_df['EnergyEffWithFinFan_Adjusted'] = adjusted_df['EnergyWithFinFan_Adjusted'] / adjusted_df['Production']
         
